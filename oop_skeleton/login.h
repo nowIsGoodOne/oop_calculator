@@ -56,7 +56,7 @@ public:
 // 관리자 클래스
 class Administrator : public User {
 private:
-    unordered_map<std::string, vector<double>> grades;
+    unordered_map<string, vector<double>> grades;
 
 public:
     Administrator(const string& name, const string& studentID, const string& major)
@@ -72,7 +72,7 @@ public:
         for (const auto& pair : grades) {
             cout << "Subject: " << pair.first << " | Grades: ";
             for (const auto& grade : pair.second) {
-                cout << fixed << std::setprecision(2) << grade << " ";
+                cout << fixed << setprecision(2) << grade << " ";
             }
             cout << endl;
         }

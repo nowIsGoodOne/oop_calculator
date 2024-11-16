@@ -25,24 +25,67 @@ int main() {
     try {
         string id, pw;
         bool userPermission = false;  // Default: 권한이 없음
-        
-        cout << "ID:";
-        cin >> id;
-        cout << "PW:";
-        cin >> pw;
-        
-        UserSystem::checkAccess(userPermission, id, pw);
+        UserSystem::checkAccess(userPermission);
 
         // 로그인된 사용자에 따른 객체 생성
-        if (userType == 1 && userPermission) {  // 학생 로그인
-            UserSystem::StudentUser student("Duke Lee", "S001", "Advertising");
-            student.viewGrades();  // 학생 성적 조회
-        } else if (userType == 2 && userPermission) {  // 교수 로그인
-            UserSystem::Professor professor("Professor Smith", "P001", "Advertising");
-            professor.viewGrades();  // 교수 성적 조회
-        } else if (userType == 3 && userPermission) {  // 관리자 로그인
-            UserSystem::Administrator admin("Administrator Kim", "A001", "Advertising");
-            admin.viewGrades();  // 관리자 성적 조회
+        if (userType == 1) {  // 학생 로그인
+            cout << "'학생'의 신분으로 로그인합니다. ID와 PW를 입력해 주세요." << endl;
+            cout << "ID: ";
+            cin >> id;
+            cout << "PW: ";
+            cin >> pw;
+
+            // 인증 확인
+            if (id == "student" && pw == "student123") {
+                cout << "************************************************************" << endl;
+                cout << "인증이 완료되었습니다." << endl;
+                UserSystem::StudentUser student("Duke Lee", id, pw);
+                student.viewGrades();  // 학생 성적 조회
+            }
+            else {
+                throw invalid_argument("유효하지 않은 계정입니다.");
+            }
+
+        } else if (userType == 2) {  // 교수 로그인
+            cout << "'교수'의 신분으로 로그인합니다. ID와 PW를 입력해 주세요." << endl;
+            cout << "ID: ";
+            cin >> id;
+            cout << "PW: ";
+            cin >> pw;
+
+            // 인증 확인
+            if (id == "professor" && pw == "professor123") {
+                cout << "************************************************************" << endl;
+                cout << "인증이 완료되었습니다." << endl;
+                UserSystem::Professor professor("Professor Smith", id, pw);
+                professor.inputGrades("Advertising", {85.0, 90.0, 78.5});
+                professor.viewGrades();  // 교수 성적 조회
+            }
+            else {
+                throw invalid_argument("유효하지 않은 계정입니다.");
+            }
+
+        } else if (userType == 3) {  // 관리자 로그인
+            cout << "'관리자'의 신분으로 로그인합니다. ID와 PW를 입력해 주세요." << endl;
+            cout << "ID: ";
+            cin >> id;
+            cout << "PW: ";
+            cin >> pw;
+
+            // 인증 확인
+            if (id == "admin" && pw == "admin123") {
+                cout << "************************************************************" << endl;
+                cout << "인증이 완료되었습니다." << endl;
+                UserSystem::Administrator admin("Administrator Kim", id, pw);
+
+                // 관리자 성적 입력 및 조회
+                admin.inputGrades("Marketing", {85.0, 90.0, 78.5});
+                admin.viewGrades();  // 관리자 성적 조회
+            }
+            else {
+                throw invalid_argument("유효하지 않은 계정입니다.");
+            }
+
         } else {
             throw invalid_argument("유효하지 않은 선택입니다.");
         }

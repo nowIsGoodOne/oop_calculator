@@ -12,6 +12,9 @@
 #include <fstream>
 #include <vector>
 #include <string>
+#include <map>
+#include <stdexcept>
+
 using namespace std;
 
 
@@ -43,12 +46,14 @@ public:
 
 class GradeManager {
 private:
+    map<int, string> studentGrades; // 학생 ID를 기준으로 성적 저장
     vector<Student> students;
     const string filename = "grades.txt";
 
 public:
-    void addStudent(const Student& s) {
+    void addStudent(const Student& s, int id, double grade) {
         students.push_back(s);
+        studentGrades[id] = s + ": " + to_string(grade);
     }
 
     void saveGrades() {
@@ -83,7 +88,8 @@ public:
     }
 
     void displayAllStudents() const {
-        for (const auto& s : students) {
+        cout << "모든 학생의 성적을 출력합니다." << endl;
+        for (auto& s : students) {
             s.displayInfo();
         }
     }

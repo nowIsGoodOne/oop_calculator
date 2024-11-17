@@ -1,0 +1,178 @@
+// 대강 화면 모습 구현되게 만든 모습... gpt 도움 많이 받았습니다.
+// 나영님 코드랑 연계해보고 싶었는데, 제 이해 범주를 벗어나서요 ㅠㅠ
+
+#include <iostream>
+#include <string>
+#include <vector>
+#include <iomanip>
+
+using namespace std;
+
+// 학생 클래스
+class Student {
+public:
+    string id, name, major;
+    vector<pair<string, string>> grades; // (과목명, 성적)
+    double gpa = 0.0;
+
+    Student(string id, string name, string major) : id(id), name(name), major(major) {}
+
+    void addGrade(string subject, string grade) {
+        grades.push_back(make_pair(subject, grade));
+        updateGPA();
+    }
+
+    void displayGrades() {
+        cout << "********************************************\n";
+        cout << "   성적 조회 (학번: " << id << ", 이름: " << name << ")\n";
+        cout << "********************************************\n";
+        cout << left << setw(20) << "과목명" << setw(10) << "성적" << endl;
+        for (auto& g : grades) {
+            cout << left << setw(20) << g.first << setw(10) << g.second << endl;
+        }
+        cout << "********************************************\n";
+        cout << "총 평점 평균: " << fixed << setprecision(2) << gpa << endl;
+    }
+
+private:
+    void updateGPA() {
+        double totalPoints = 0.0;
+        int totalSubjects = 0;
+        for (auto& g : grades) {
+            if (g.second == "A+") totalPoints += 4.5;
+            else if (g.second == "A") totalPoints += 4.0;
+            else if (g.second == "B+") totalPoints += 3.5;
+            else if (g.second == "B") totalPoints += 3.0;
+            else if (g.second == "C+") totalPoints += 2.5;
+            else if (g.second == "C") totalPoints += 2.0;
+            totalSubjects++;
+        }
+        gpa = totalSubjects > 0 ? totalPoints / totalSubjects : 0.0;
+    }
+};
+
+// 교수 클래스
+class Professor {
+public:
+    string id, name;
+    vector<pair<string, vector<Student*>>> subjects; // (과목명, 학생 리스트)
+
+    Professor(string id, string name) : id(id), name(name) {}
+
+    void addSubject(string subject, vector<Student*>& students) {
+        subjects.push_back(make_pair(subject, students));
+    }
+
+    void manageGrades() {
+        cout << "********************************************\n";
+        cout << "   담당 과목 관리 (교수: " << name << ")\n";
+        cout << "********************************************\n";
+
+        for (size_t i = 0; i < subjects.size(); i++) {
+            cout << i + 1 << ". " << subjects[i].first << endl;
+        }
+
+        cout << "조회할 과목을 선택하세요: ";
+        int choice;
+        cin >> choice;
+        if (choice < 1 || choice > subjects.size()) {
+            cout << "잘못된 선택입니다.\n";
+            return;
+        }
+
+        string subject = subjects[choice - 1].first;
+        auto& students = subjects[choice - 1].second;
+
+        cout << "********************************************\n";
+        cout << "   과목: " << subject << "\n";
+        cout << "********************************************\n";
+        cout << left << setw(10) << "학번" << setw(10) << "이름" << setw(10) << "학과" << endl;
+
+        for (auto* student : students) {
+            cout << left << setw(10) << student->id << setw(10) << student->name << setw(10) << student->major << endl;
+        }
+
+        cout << "성적을 입력할 학생의 학번을 선택하세요: ";
+        string studentID;
+        cin >> studentID;
+
+        auto it = find_if(students.begin(), students.end(), [&](Student* s) { return s->id == studentID; });
+        if (it == students.end()) {
+            cout << "해당 학번의 학생이 없습니다.\n";
+            return;
+        }
+
+        cout << "입력할 성적: ";
+        string grade;
+        cin >> grade;
+
+        (*it)->addGrade(subject, grade);
+        cout << "성적 입력이 완료되었습니다.\n";
+    }
+};
+
+// 로그인 함수
+int loginMenu() {
+    cout << "********************************************\n";
+    cout << " 광고홍보학과 성적 관리 시스템\n";
+    cout << "********************************************\n";
+    cout << "로그인을 진행합니다.\n";
+    cout << "1. 학생\n";
+    cout << "2. 교수\n";
+    cout << "3. 종료\n";
+    cout << "********************************************\n";
+    cout << "로그인할 계정의 신분을 선택해 번호를 입력하세요: ";
+    int choice;
+    cin >> choice;
+    return choice;
+}
+
+int main() {
+    // 초기 데이터 설정
+    vector<Student> students = {
+        Student("20206105", "김시원", "광고홍보학과"),
+        Student("20200330", "김광보", "광고홍보학과"),
+        Student("20203032", "차은우", "광고홍보학과"),
+    };
+
+    Professor professor("ImGyo-su", "임교수");
+    vector<Student*> class1 = { &students[0], &students[1], &students[2] };
+    professor.addSubject("브랜드커뮤니케이션 캠페인", class1);
+
+    while (true) {
+        int userType = loginMenu();
+
+        if (userType == 1) {
+            cout << "학생의 학번을 입력하세요: ";
+            string studentID;
+            cin >> studentID;
+
+            auto it = find_if(students.begin(), students.end(), [&](Student& s) { return s.id == studentID; });
+            if (it == students.end()) {
+                cout << "해당 학번의 학생이 없습니다.\n";
+                continue;
+            }
+
+            it->displayGrades();
+        } else if (userType == 2) {
+            string id, password;
+            cout << "교수 ID: ";
+            cin >> id;
+            cout << "PW: ";
+            cin >> password;
+
+            if (id == professor.id) {
+                professor.manageGrades();
+            } else {
+                cout << "인증 실패.\n";
+            }
+        } else if (userType == 3) {
+            cout << "시스템을 종료합니다.\n";
+            break;
+        } else {
+            cout << "잘못된 선택입니다.\n";
+        }
+    }
+
+    return 0;
+}
